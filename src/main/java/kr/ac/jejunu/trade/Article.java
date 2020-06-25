@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Data
 @Builder
@@ -21,5 +23,10 @@ public class Article {
     private String title;
     private String content;
     private String image;
-    private Integer writtenDate;
+    private Long writtenDate;
+
+    @PrePersist
+    public void writtenDate() {
+        this.writtenDate = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+    }
 }
