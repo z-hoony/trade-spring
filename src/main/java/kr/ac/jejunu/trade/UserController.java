@@ -20,12 +20,19 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public void login(@RequestBody User user, HttpSession session, HttpServletResponse response) {
-        User loginUser = userRepository.findByUsernameAndPassword(user.getUsername(), user.getPassword());
-        if (loginUser != null) {
-            session.setAttribute("loginUserId", loginUser.getId());
-        } else {
+    public UserInfo login(@RequestBody User user, HttpSession session, HttpServletResponse response) {
+        try {
+            UserInfo loginUser = userRepository.findByUsernameAndPassword(user.getUsername(), user.getPassword()).get();
+            if (loginUser != null) {
+                session.setAttribute("loginUserId", loginUser.getId());
+                return loginUser;
+            } else {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return null;
+            }
+        } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return null;
         }
     }
 

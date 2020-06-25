@@ -8,6 +8,7 @@ import java.util.Optional;
 
 interface UserInfo {
     String getNickname();
+    Integer getId();
 }
 
 interface CommentInfo {

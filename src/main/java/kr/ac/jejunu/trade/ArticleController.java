@@ -65,7 +65,9 @@ public class ArticleController {
             article.setImage(articleId + "_" + image.getOriginalFilename());
             articleRepository.save(article);
 
+            File staticPath = new File(request.getServletContext().getRealPath("/") + "/WEB-INF/static/");
             File path = new File(request.getServletContext().getRealPath("/") + "/WEB-INF/static/" + articleId + "_" + image.getOriginalFilename());
+            staticPath.mkdirs();
             FileOutputStream fileOutputStream = new FileOutputStream(path);
             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
             bufferedOutputStream.write(image.getBytes());
