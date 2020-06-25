@@ -20,19 +20,17 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public void login(@RequestBody User user, HttpServletRequest request, HttpServletResponse response) {
-        HttpSession session = request.getSession();
+    public void login(@RequestBody User user, HttpSession session, HttpServletResponse response) {
         User loginUser = userRepository.findByUsernameAndPassword(user.getUsername(), user.getPassword());
         if (loginUser != null) {
-            session.setAttribute("loginUserId", user.getId());
+            session.setAttribute("loginUserId", loginUser.getId());
         } else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
 
     @GetMapping("/logout")
-    public void logout(HttpServletRequest request) {
-        HttpSession session = request.getSession();
+    public void logout(HttpSession session) {
         session.invalidate();
     }
 }
