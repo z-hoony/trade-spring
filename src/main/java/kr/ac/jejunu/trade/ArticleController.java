@@ -51,7 +51,6 @@ public class ArticleController {
                       HttpServletRequest request,
                       HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession();
-        System.out.println(session.getAttribute("loginUserId"));
         User loginUser = getUserFromSession(session);
         if (loginUser == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
