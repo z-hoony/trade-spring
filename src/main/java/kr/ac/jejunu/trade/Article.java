@@ -9,6 +9,12 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
+enum ArticleState {
+    WAIT,
+    TRADE,
+    COMPLETE;
+}
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -24,9 +30,12 @@ public class Article {
     private String content;
     private String image;
     private Long writtenDate;
+    @Enumerated(EnumType.ORDINAL)
+    private ArticleState state;
 
     @PrePersist
-    public void writtenDate() {
+    public void prePersist() {
         this.writtenDate = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+        this.state = ArticleState.WAIT;
     }
 }

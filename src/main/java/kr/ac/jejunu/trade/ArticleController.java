@@ -28,7 +28,7 @@ public class ArticleController {
     private final UserRepository userRepository;
 
     @GetMapping("/list")
-    public PageResult list(@RequestParam("page") Integer pageNumber) {
+    public PageResult list(@RequestParam(value = "page", required = false, defaultValue = "0") Integer pageNumber) {
         PageRequest request = PageRequest.of(pageNumber, 20, Sort.Direction.DESC, "id");
         Page<Article> page = articleRepository.findAll(request);
         return new PageResult(page.hasNext(), page.getContent());
@@ -82,7 +82,7 @@ public class ArticleController {
             return;
         }
         try {
-            Article article = articleRepository.getOne(articleId);
+            Article article = articleRepository.findById(articleId).get();
             if (!article.getWriter().getId().equals(loginUser.getId())) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
@@ -96,7 +96,26 @@ public class ArticleController {
             articleRepository.delete(article);
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/state/{id}")
+    public void changeState(@PathVariable("id") Integer articleId, @RequestParam("state") ArticleState state, HttpSession session, HttpServletResponse response) {
+        User loginUser = getUserFromSession(session);
+        if (loginUser == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
+        }
+        try {
+            Article article = articleRepository.findById(articleId).get();
+            if (!article.getWriter().getId().equals(loginUser.getId())) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+            article.setState(state);
+            articleRepository.save(article);
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
