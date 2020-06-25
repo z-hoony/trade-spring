@@ -33,4 +33,11 @@ public class UserController {
     public void logout(HttpSession session) {
         session.invalidate();
     }
+
+    @GetMapping("/check")
+    public void isLoggedIn(HttpSession session, HttpServletResponse response) {
+        if (session.getAttribute("loginUserId") == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
 }
