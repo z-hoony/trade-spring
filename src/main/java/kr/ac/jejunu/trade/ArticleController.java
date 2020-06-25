@@ -30,13 +30,18 @@ public class ArticleController {
     @GetMapping("/list")
     public PageResult list(@RequestParam("page") Integer pageNumber) {
         PageRequest request = PageRequest.of(pageNumber, 20, Sort.Direction.DESC, "id");
-        Page page = articleRepository.findAll(request);
+        Page<Article> page = articleRepository.findAll(request);
         return new PageResult(page.hasNext(), page.getContent());
     }
 
     @GetMapping("/{id}")
-    public Article get(@PathVariable("id") Integer id) {
-        return articleRepository.getOne(id);
+    public Article get(@PathVariable("id") Integer id, HttpServletResponse response) {
+        try {
+            return articleRepository.findById(id).get();
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return null;
+        }
     }
 
     @PostMapping
@@ -76,18 +81,23 @@ public class ArticleController {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        Article article = articleRepository.getOne(articleId);
-        if (article == null || article.getWriter().getId() != loginUser.getId()) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        try {
+            Article article = articleRepository.getOne(articleId);
+            if (!article.getWriter().getId().equals(loginUser.getId())) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+            if (article.getImage() != null && !article.getImage().isEmpty()) {
+                File path = new File(request.getServletContext().getRealPath("/") + "/WEB-INF/static/" + article.getImage());
+                if (path.exists()) {
+                    path.delete();
+                }
+            }
+            articleRepository.delete(article);
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        if (article.getImage() != null && article.getImage().isEmpty() == false) {
-            File path = new File(request.getServletContext().getRealPath("/") + "/WEB-INF/static/" + article.getImage());
-            if (path.exists()) {
-                path.delete();
-            }
-        }
-        articleRepository.delete(article);
     }
 
     private User getUserFromSession(HttpSession session) {
@@ -95,7 +105,6 @@ public class ArticleController {
         if (userId == null) {
             return null;
         }
-        User loginUser = userRepository.getOne((Integer) userId);
-        return loginUser;
+        return userRepository.getOne((Integer) userId);
     }
 }
