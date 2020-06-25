@@ -28,23 +28,25 @@ public class CommentController {
     }
 
     @PostMapping("/{id}")
-    public void write(@PathVariable("id") Integer articleId, @RequestParam("comment") String content, HttpSession session, HttpServletResponse response) {
+    public CommentInfo write(@PathVariable("id") Integer articleId, @RequestParam("comment") String content, HttpSession session, HttpServletResponse response) {
         User loginUser = getUserFromSession(session);
         if (loginUser == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
+            return null;
         }
         try {
             Article article = articleRepository.findById(articleId).get();
             if (article.getState() == ArticleState.COMPLETE) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
+                return null;
             }
             Comment comment = Comment.builder().article(article).writer(loginUser).content(content).build();
             commentRepository.save(comment);
+            return commentRepository.findCommentById(comment.getId()).get();
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
+        return null;
     }
 
     @DeleteMapping("/{articleId}/{commentId}")

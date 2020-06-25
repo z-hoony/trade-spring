@@ -46,7 +46,7 @@ public class ArticleController {
     }
 
     @PostMapping
-    public void write(@RequestParam(value = "image", required = false)MultipartFile image,
+    public ArticleInfo write(@RequestParam(value = "image", required = false)MultipartFile image,
                       @RequestParam("title") String title,
                       @RequestParam("content") String content,
                       HttpServletRequest request,
@@ -55,7 +55,7 @@ public class ArticleController {
         User loginUser = getUserFromSession(session);
         if (loginUser == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
+            return null;
         }
         Article article = Article.builder().title(title).content(content).writer(loginUser).build();
         articleRepository.save(article);
@@ -71,6 +71,7 @@ public class ArticleController {
             bufferedOutputStream.write(image.getBytes());
             bufferedOutputStream.close();
         }
+        return articleRepository.findArticleById(article.getId()).get();
     }
 
     @DeleteMapping("/{id}")
