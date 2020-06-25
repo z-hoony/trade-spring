@@ -4,6 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -16,16 +20,19 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public void login(@RequestBody User user) {
-        if (userRepository.findByNameAndPassword(user.getName(), user.getPassword()) != null) {
-            // TODO: 로그인 성공
+    public void login(@RequestBody User user, HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession();
+        User loginUser = userRepository.findByUsernameAndPassword(user.getUsername(), user.getPassword());
+        if (loginUser != null) {
+            session.setAttribute("loginUserId", user.getId());
         } else {
-            // TODO: 로그인 실패
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
 
     @GetMapping("/logout")
-    public void logout() {
-        // TODO: 로그아웃
+    public void logout(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        session.invalidate();
     }
 }
