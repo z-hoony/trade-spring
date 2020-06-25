@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.BDDMockito.given;
@@ -38,15 +39,16 @@ class TradeApplicationTests {
     public void articleList() throws Exception {
         List<Article> articles = new ArrayList<>();
         User user = User.builder().name(name).password(password).nickname(nickname).build();
-        Article article = Article.builder().id(1).title(title).content(content).writer(user).build();
+        Article article = Article.builder().id(1).title(title).content(content).writer(user).writtenDate(1).build();
         articles.add(article);
         articles.add(article);
-        given(articleController.list()).willReturn(articles);
+        given(articleController.list(0)).willReturn(articles);
         mvc.perform(get("/api/article/list"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$", hasSize(lessThanOrEqualTo(20))))
                 .andExpect(jsonPath("$[0].title", is(title)))
-                .andExpect(jsonPath("$[0].nickname", is(nickname)))
+                .andExpect(jsonPath("$[0].writer.nickname", is(nickname)))
                 .andExpect(jsonPath("$[0].content", is(content)))
                 .andExpect(jsonPath("$[0].writtenDate", greaterThan(0)));
     }
@@ -99,7 +101,7 @@ class TradeApplicationTests {
     public void deleteComment() {
 
     }
-    
+
     @Test
     public void createUser() {
 
