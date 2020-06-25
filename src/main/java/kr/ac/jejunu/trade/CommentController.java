@@ -16,10 +16,10 @@ public class CommentController {
     private final CommentRepository commentRepository;
 
     @GetMapping("/{id}/list")
-    public List<Comment> list(@PathVariable("id") Integer articleId, HttpServletResponse response) {
+    public List<CommentInfo> list(@PathVariable("id") Integer articleId, HttpServletResponse response) {
         try {
             Article article = articleRepository.findById(articleId).get();
-            List<Comment> comments = commentRepository.findByArticle(article);
+            List<CommentInfo> comments = commentRepository.findCommentsByArticle(article);
             return comments;
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);

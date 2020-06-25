@@ -13,6 +13,7 @@ import java.time.ZoneOffset;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

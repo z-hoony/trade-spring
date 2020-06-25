@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 class PageResult {
     private Boolean hasNext;
-    private List<Article> articles;
+    private List<ArticleInfo> articles;
 }
 
 @RestController
@@ -30,14 +30,15 @@ public class ArticleController {
     @GetMapping("/list")
     public PageResult list(@RequestParam(value = "page", required = false, defaultValue = "0") Integer pageNumber) {
         PageRequest request = PageRequest.of(pageNumber, 20, Sort.Direction.DESC, "id");
-        Page<Article> page = articleRepository.findAll(request);
+        Page<ArticleInfo> page = articleRepository.findArticlesBy(request);
+
         return new PageResult(page.hasNext(), page.getContent());
     }
 
     @GetMapping("/{id}")
-    public Article get(@PathVariable("id") Integer id, HttpServletResponse response) {
+    public ArticleInfo get(@PathVariable("id") Integer id, HttpServletResponse response) {
         try {
-            return articleRepository.findById(id).get();
+            return articleRepository.findArticleById(id).get();
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return null;
